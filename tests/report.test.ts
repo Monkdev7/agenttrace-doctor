@@ -103,3 +103,47 @@ describe("generateReport", () => {
     expect(md).toContain("No issues were detected");
   });
 });
+
+describe("report text is plain ASCII (no replacement/control chars)", () => {
+  // Any byte outside printable ASCII + tab/newline. Catches em dashes, smart
+  // quotes, the U+FFFD replacement char, and stray control characters.
+  const NON_ASCII = /[^\x09\x0A\x20-\x7E]/;
+
+  const clean = normalizeTrace(
+    {
+      events: [
+        { id: "a", type: "tool_call", tool_name: "s", args: {} },
+        { id: "b", type: "tool_result", tool_name: "s", status: "ok", call_id: "a" },
+      ],
+    },
+    "clean",
+  );
+
+  it("limitations sentence is the exact expected plain-ASCII text", () => {
+    const md = generateReport(clean, runDetectors(clean), fixed);
+    expect(md).toContain(
+      "Absence of findings means the implemented rules found no issues, but it does not prove the run is correct.",
+    );
+  });
+
+  it("a clean-run report contains no non-ASCII characters", () => {
+    const md = generateReport(clean, runDetectors(clean), fixed);
+    expect(NON_ASCII.test(md)).toBe(false);
+  });
+
+  it("a report with findings (loop + error) contains no non-ASCII characters", () => {
+    const withFindings = normalizeTrace(
+      {
+        events: [
+          { id: "x1", type: "tool_call", tool_name: "search", args: { q: "a" } },
+          { id: "x2", type: "tool_call", tool_name: "search", args: { q: "a" } },
+          { id: "x3", type: "tool_call", tool_name: "search", args: { q: "a" } },
+          { id: "x4", type: "tool_result", tool_name: "db", status: "error", error: "boom", call_id: "x3" },
+        ],
+      },
+      "demo",
+    );
+    const md = generateReport(withFindings, runDetectors(withFindings), fixed);
+    expect(NON_ASCII.test(md)).toBe(false);
+  });
+});

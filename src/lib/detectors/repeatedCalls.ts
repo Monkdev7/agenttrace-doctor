@@ -58,7 +58,7 @@ function makeFinding(run: { index: number; tool_name: string }[]): Finding {
     fact: `The "${tool}" tool was called ${n} times in a row with identical arguments.`,
     rule: `A tool called ${MIN_RUN}+ times consecutively with exactly identical arguments (ignoring interleaved results) is flagged as a possible loop.`,
     explanation:
-      "This is a possible loop — the agent may be repeating the same action without making progress. Identical repeated calls are worth investigating, but do not by themselves prove a bug.",
+      "This is a possible loop: the agent may be repeating the same action without making progress. Identical repeated calls are worth investigating, but do not by themselves prove a bug.",
     fix: "Add a guard that stops repeating an unchanged call, vary the arguments, or check why the earlier results did not advance the agent's plan.",
     eventIndices: indices,
   };

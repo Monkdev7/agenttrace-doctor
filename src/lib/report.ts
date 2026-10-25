@@ -79,7 +79,7 @@ export function generateReport(
     lines.push("");
     findings.forEach((f, i) => {
       const label = f.certainty === "confirmed" ? "Confirmed error" : "Possible loop";
-      lines.push(`### ${i + 1}. ${escapeMd(f.title)} — ${label}`);
+      lines.push(`### ${i + 1}. ${escapeMd(f.title)} (${label})`);
       lines.push("");
       lines.push(`**Observed fact:** ${escapeMd(f.fact)}`);
       lines.push("");
@@ -88,7 +88,7 @@ export function generateReport(
         const event = trace.events[index];
         const id = event ? event.id : `#${index}`;
         const preview = event ? eventPreview(event) : "(event not found)";
-        lines.push(`- \`${escapeMd(id)}\` — ${escapeMd(preview)}`);
+        lines.push(`- \`${escapeMd(id)}\`: ${escapeMd(preview)}`);
       }
       lines.push("");
       lines.push(`**Potential explanation:** ${escapeMd(f.explanation)}`);
@@ -105,7 +105,7 @@ export function generateReport(
   lines.push(
     `These findings come from deterministic rules (repeated tool calls and ` +
       `explicit tool errors). Absence of findings means the implemented rules ` +
-      `found no issues — it does not prove the run is correct.`,
+      `found no issues, but it does not prove the run is correct.`,
   );
   lines.push("");
 

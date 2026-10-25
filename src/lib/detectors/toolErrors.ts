@@ -36,7 +36,7 @@ export function detectToolErrors(trace: NormalizedTrace): Finding[] {
       fact: `The "${tool}" tool reported an error: ${message}`,
       rule: 'A tool_result with status "error" is a failure the trace reported directly.',
       explanation:
-        "This error is confirmed by the trace itself. The trace does not say WHY the tool failed, so any deeper root cause is not established here — only that this call failed.",
+        "This error is confirmed by the trace itself. The trace does not say WHY the tool failed, so any deeper root cause is not established here, only that this call failed.",
       fix: "Inspect the failing tool's inputs and the error message, add handling or a retry/fallback for this failure, and confirm the tool's preconditions were met.",
       eventIndices: indices,
     });
