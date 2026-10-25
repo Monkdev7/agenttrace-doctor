@@ -9,12 +9,12 @@ describe("default sample findings (what the workspace renders)", () => {
   const normalized = normalizeTrace(DEFAULT_SAMPLE.trace, DEFAULT_SAMPLE.name);
   const findings = runDetectors(normalized);
 
-  it("shows a possible-loop finding for the repeated search calls", () => {
+  it("shows a possible-loop finding for the repeated get_weather calls", () => {
     const loop = findings.find((f) => f.detector === "repeated_calls");
     expect(loop).toBeDefined();
     expect(loop!.certainty).toBe("possible");
-    // The three repeated "weather tomorrow" search calls are e3/e5/e7 at indices 2,4,6.
-    expect(loop!.eventIndices).toEqual([2, 4, 6]);
+    // The three repeated get_weather(Paris, tomorrow) calls are e1/e3/e5 at indices 0,2,4.
+    expect(loop!.eventIndices).toEqual([0, 2, 4]);
   });
 
   it("evidence indices point at real timeline events", () => {
