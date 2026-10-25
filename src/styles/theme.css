@@ -4,15 +4,22 @@
  * in exactly one place. (spec.md > Look and Feel)
  */
 :root {
-  /* Surfaces */
-  --bg: #0d1220;
-  --panel: #141b2d;
-  --panel-2: #1b2439;
-  --line: #293349;
+  /* Surfaces: a calm navy ramp from deepest base to raised cards. */
+  --bg: #0b1020;
+  --panel: #121a2e;
+  --panel-2: #1a2440;
+  --raised: #1e2947;
+  --line: #273350;
+  --line-soft: #1d273f;
 
   /* Text */
-  --ink: #e7edf6;
-  --muted: #93a1b5;
+  --ink: #e8eef8;
+  --muted: #8d9bb3;
+  --faint: #5f6d86;
+
+  /* Depth */
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.22);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   /* Semantic accents (restrained; red is NOT used decoratively) */
   --primary: #3fd0e0;   /* selection, highlight, "watch"/possible-loop */

@@ -31,8 +31,25 @@ export function Header({
   return (
     <header className="app__header">
       <div className="app__brand">
-        <h1 className="app__title">AgentTrace Doctor</h1>
-        <span className="app__subtitle">evidence-first agent trace debugging</span>
+        <span className="app__mark" aria-hidden="true">
+          {/* Compact product mark: a pulse/trace line inside a rounded tile. */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M3 13h3.2l2-6 3.4 11 2.6-7 1.5 2h5.3"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <div className="app__brandtext">
+          <h1 className="app__title">AgentTrace Doctor</h1>
+          <span className="app__subtitle">evidence-first agent trace debugging</span>
+        </div>
+        <span className="app__trust" title="All analysis runs locally in your browser">
+          Local analysis · No API key
+        </span>
       </div>
 
       <div className="app__controls">
@@ -66,6 +83,8 @@ export function Header({
         <button type="button" className="btn" onClick={() => fileInput.current?.click()}>
           Upload JSON
         </button>
+
+        <span className="app__controls-divider" aria-hidden="true" />
 
         <button type="button" className="btn btn--primary" onClick={onDownloadReport}>
           Download report

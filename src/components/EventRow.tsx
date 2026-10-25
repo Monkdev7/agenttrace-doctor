@@ -34,27 +34,43 @@ export function EventRow({
     (highlighted ? " event-row--highlighted" : "") +
     (selected ? " event-row--selected" : "");
 
+  // Node marker color follows the event's own kind/status, giving the timeline
+  // rail a readable rhythm. (Selection highlight stays separate, on the card.)
+  const nodeClass =
+    "timeline__node" +
+    (event.type === "tool_result"
+      ? event.status === "error"
+        ? " timeline__node--error"
+        : " timeline__node--ok"
+      : " timeline__node--call");
+
   return (
-    <div
-      className={rowClass}
-      data-event-index={event.index}
-      onClick={() => {
-        setExpanded((v) => !v);
-        onSelect();
-      }}
-    >
-      <div className="event-row__main">
-        <span className="event-row__id">{event.id}</span>
-        <span className="event-row__type">{typeLabel}</span>
-        <span className="event-row__tool">{event.tool_name}</span>
-        <span className={statusClass}>
-          <span className="status-dot" />
-          {statusText}
-        </span>
+    <div className="timeline__item">
+      <div className="timeline__rail" aria-hidden="true">
+        <span className={nodeClass} />
       </div>
-      {expanded && (
-        <pre className="event-row__detail">{renderDetail(event)}</pre>
-      )}
+      <div
+        className={rowClass}
+        data-event-index={event.index}
+        onClick={() => {
+          setExpanded((v) => !v);
+          onSelect();
+        }}
+      >
+        <div className="event-row__main">
+          <span className="event-row__id">{event.id}</span>
+          <span className="event-row__type">{typeLabel}</span>
+          <span className="event-row__tool">{event.tool_name}</span>
+          <span className={statusClass}>
+            <span className="status-dot" />
+            {statusText}
+          </span>
+          <span className={"event-row__chevron" + (expanded ? " is-open" : "")} aria-hidden="true">
+            ›
+          </span>
+        </div>
+        {expanded && <pre className="event-row__detail">{renderDetail(event)}</pre>}
+      </div>
     </div>
   );
 }

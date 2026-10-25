@@ -1,4 +1,7 @@
-/* Layout + component styles. (spec.md > Look and Feel, Components) */
+/* Layout + component styles. (spec.md > Look and Feel, Components)
+ * Refinement pass: calmer surfaces, clearer hierarchy, timeline rail, and a
+ * more legible finding card. No markup classes were removed; behavior is
+ * unchanged. */
 
 .app {
   display: flex;
@@ -6,37 +9,72 @@
   height: 100%;
 }
 
+/* ============================ Header ============================ */
 .app__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 20px;
+  gap: 16px 24px;
+  padding: 12px 22px;
   border-bottom: 1px solid var(--line);
-  background: var(--panel);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
   flex: none;
   flex-wrap: wrap;
 }
 
 .app__brand {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Product mark: rounded tile with a cyan trace line. */
+.app__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, var(--raised));
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--line));
+  box-shadow: var(--shadow-sm);
+  flex: none;
+}
+
+.app__brandtext {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
 }
 
 .app__title {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 650;
   letter-spacing: -0.2px;
 }
 
 .app__subtitle {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
-/* --- Header controls --- */
+/* Trust cue: quiet, mono, with a soft outline. */
+.app__trust {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--raised);
+  white-space: nowrap;
+}
+
+/* ------------------------- Header controls ------------------------- */
 .app__controls {
   display: flex;
   align-items: center;
@@ -44,43 +82,69 @@
   flex-wrap: wrap;
 }
 
+.app__controls-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 22px;
+  background: var(--line);
+  margin: 0 2px;
+}
+
 .control {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 .control__label {
-  font-size: 11px;
-  letter-spacing: 0.5px;
+  font-size: 10.5px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--faint);
 }
 .control__select {
-  background: var(--panel-2);
+  background: var(--raised);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 5px 8px;
-  font-family: inherit;
-  font-size: 13px;
-}
-
-.btn {
-  background: var(--panel-2);
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
 }
-.btn:hover {
-  border-color: var(--primary);
+.control__select:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
 }
+
+.btn {
+  background: var(--raised);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.btn:hover {
+  border-color: color-mix(in srgb, var(--primary) 50%, var(--line));
+  background: var(--panel-2);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+/* Primary export action: filled cyan so the hierarchy is obvious. */
 .btn--primary {
-  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 16%, var(--raised));
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
   color: var(--primary);
+  font-weight: 600;
+}
+.btn--primary:hover {
+  background: color-mix(in srgb, var(--primary) 26%, var(--raised));
+  border-color: var(--primary);
 }
 
 .visually-hidden {
@@ -95,15 +159,16 @@
   border: 0;
 }
 
-/* --- Validation error region (inline, non-destructive) --- */
+/* =================== Validation error (inline) =================== */
 .validation-error {
   flex: none;
-  margin: 12px 20px 0;
+  margin: 12px 22px 0;
   padding: 12px 14px;
-  border: 1px solid var(--error);
-  border-left-width: 4px;
+  border: 1px solid color-mix(in srgb, var(--error) 55%, var(--line));
+  border-left-width: 3px;
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--error) 10%, var(--panel));
+  background: color-mix(in srgb, var(--error) 9%, var(--panel));
+  box-shadow: var(--shadow-sm);
 }
 .validation-error__head {
   display: flex;
@@ -123,9 +188,12 @@
   line-height: 1;
   cursor: pointer;
 }
+.validation-error__close:hover {
+  color: var(--ink);
+}
 .validation-error__details {
   margin: 8px 0 0;
-  padding-left: 20px;
+  padding-left: 18px;
   font-size: 13px;
   font-family: var(--font-mono);
 }
@@ -139,44 +207,112 @@
   color: var(--muted);
 }
 
-/* --- Two-panel workspace --- */
+/* ===================== Two-panel workspace ===================== */
 .app__workspace {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 1px;
-  background: var(--line); /* shows as the divider between panels */
+  background: var(--line-soft); /* shows as the divider between panels */
 }
 
 .app__panel {
   min-height: 0;
+  min-width: 0;
   overflow: auto;
-  padding: 16px 18px;
+  padding: 18px 20px 28px;
   background: var(--bg);
+}
+.app__panel--findings {
+  background: linear-gradient(180deg, var(--bg), #0a0f1d);
 }
 
 .panel__heading {
-  font-size: 12px;
-  letter-spacing: 1.2px;
+  font-size: 11px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 12px;
+  color: var(--faint);
+  margin: 0 0 14px;
+  position: sticky;
+  top: -18px;
+  padding: 10px 0;
+  background: var(--bg);
+  z-index: 1;
+}
+.app__panel--findings .panel__heading {
+  background: var(--bg);
 }
 
-/* --- Timeline --- */
+/* ========================= Timeline ========================= */
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+}
+
+/* Each item is [rail | card]; the rail draws the connecting line + node. */
+.timeline__item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+}
+
+.timeline__rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+/* The vertical connector line running through the node column. */
+.timeline__rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+/* Trim the line at the very top and bottom of the list. */
+.timeline__item:first-child .timeline__rail::before {
+  top: 18px;
+}
+.timeline__item:last-child .timeline__rail::before {
+  bottom: calc(100% - 18px);
+}
+
+.timeline__node {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: 2px solid var(--faint);
+}
+.timeline__node--call {
+  border-color: var(--muted);
+}
+.timeline__node--ok {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 25%, var(--panel-2));
+}
+.timeline__node--error {
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 25%, var(--panel-2));
 }
 
 .event-row {
-  padding: 9px 12px;
-  border: 1px solid var(--line);
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   background: var(--panel);
   cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.event-row:hover {
+  border-color: var(--line);
+  background: var(--panel-2);
 }
 
 .event-row__main {
@@ -188,21 +324,29 @@
 .event-row__id {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--muted);
-  min-width: 34px;
+  color: var(--faint);
+  min-width: 32px;
 }
 
 .event-row__type {
-  font-size: 11px;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--muted);
-  min-width: 92px;
+  min-width: 78px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--raised);
+  text-align: center;
 }
 
 .event-row__tool {
   font-family: var(--font-mono);
   font-weight: 600;
+  font-size: 13.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .event-row__status {
@@ -210,25 +354,27 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10.5px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   padding: 2px 9px;
   border-radius: 999px;
   border: 1px solid var(--line);
   color: var(--muted);
+  flex: none;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--muted);
 }
 
 .status--ok {
   color: var(--success);
-  border-color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 50%, var(--line));
+  background: color-mix(in srgb, var(--success) 10%, transparent);
 }
 .status--ok .status-dot {
   background: var(--success);
@@ -236,70 +382,98 @@
 
 .status--error {
   color: var(--error);
-  border-color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 50%, var(--line));
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 .status--error .status-dot {
   background: var(--error);
 }
 
+.event-row__chevron {
+  color: var(--faint);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 120ms ease, color 120ms ease;
+  flex: none;
+}
+.event-row:hover .event-row__chevron {
+  color: var(--muted);
+}
+.event-row__chevron.is-open {
+  transform: rotate(90deg);
+  color: var(--primary);
+}
+
 .event-row__detail {
   margin: 10px 0 2px;
-  padding: 10px;
+  padding: 11px 12px;
   background: var(--bg);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-soft);
   border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 12px;
+  line-height: 1.55;
   color: var(--ink);
   white-space: pre-wrap;
   word-break: break-word;
+  overflow-x: auto;
 }
 
 /*
  * Highlight is a CYAN ring + tint from SELECTION — deliberately different from
  * the green/amber STATUS badges, so a highlighted clean event never reads as an
- * error. A selected event gets a slightly stronger ring.
+ * error. A selected event gets a stronger ring.
  */
 .event-row--highlighted {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--panel));
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
+  background: color-mix(in srgb, var(--primary) 9%, var(--panel));
 }
 .event-row--selected {
-  box-shadow: inset 0 0 0 2px var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 14px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+/* When a row is highlighted, pop its rail node to cyan too (still distinct from
+ * the status badge, which keeps its own color). */
+.event-row--highlighted ~ * .timeline__node,
+.timeline__item:has(.event-row--highlighted) .timeline__node {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
-/* --- Findings --- */
+/* ========================= Findings ========================= */
 .findings__summary {
   display: flex;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .summary-chip {
   font-size: 12px;
-  padding: 3px 10px;
+  font-weight: 500;
+  padding: 4px 11px;
   border-radius: 999px;
   border: 1px solid var(--line);
   color: var(--muted);
+  background: var(--raised);
 }
 .summary-chip--loop {
   color: var(--primary);
-  border-color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
 }
 .summary-chip--error {
   color: var(--error);
-  border-color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 45%, var(--line));
 }
 
 .event-link-note {
   font-size: 13px;
   color: var(--muted);
-  padding: 8px 10px;
-  border: 1px dashed var(--line);
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--primary);
   border-radius: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  background: color-mix(in srgb, var(--primary) 7%, var(--panel));
 }
 
 .findings__list {
@@ -309,71 +483,109 @@
 }
 
 .finding-card {
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   background: var(--panel);
-  padding: 14px;
+  padding: 0;
+  overflow: hidden;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.finding-card:hover {
+  border-color: var(--line);
 }
 .finding-card--selected {
   border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), var(--shadow);
 }
 
+/* The head is a tinted band so title + certainty read first. Its accent color
+ * depends on the finding kind via the certainty modifier below. */
 .finding-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .finding-card__title {
-  font-weight: 600;
+  font-weight: 650;
+  font-size: 14.5px;
 }
 
 .certainty {
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 2px 9px;
+  padding: 3px 10px;
   border-radius: 999px;
   border: 1px solid;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
 }
 .certainty--possible {
   color: var(--primary);
-  border-color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 .certainty--confirmed {
   color: var(--error);
-  border-color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 55%, var(--line));
+  background: color-mix(in srgb, var(--error) 12%, transparent);
 }
 
-/* The four parts: separated by a left accent stripe + label, not color alone. */
+/* Tint the head band to match the finding kind, reinforcing (not replacing)
+ * the text label. */
+.finding-card:has(.certainty--possible) .finding-card__head {
+  background: color-mix(in srgb, var(--primary) 7%, var(--panel));
+}
+.finding-card:has(.certainty--confirmed) .finding-card__head {
+  background: color-mix(in srgb, var(--error) 7%, var(--panel));
+}
+
+/* The four parts + rule share a padded body. */
 .finding-part {
-  border-left: 3px solid var(--line);
-  padding: 6px 0 6px 12px;
-  margin: 8px 0;
+  border-left: 2px solid var(--line);
+  padding: 2px 0 2px 12px;
+  margin: 12px 14px;
 }
 .finding-part p {
-  margin: 2px 0 0;
-  font-size: 14px;
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  word-break: break-word;
 }
 .finding-part__label {
-  font-size: 10.5px;
-  letter-spacing: 0.8px;
+  font-size: 10px;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--faint);
+  font-weight: 600;
 }
+/* The observed fact is the most prominent line in the card. */
 .finding-part--fact {
   border-left-color: var(--ink);
+}
+.finding-part--fact p {
+  font-size: 14.5px;
+  color: var(--ink);
+  font-weight: 500;
 }
 .finding-part--evidence {
   border-left-color: var(--primary);
 }
 .finding-part--explanation {
-  border-left-color: var(--error);
+  border-left-color: color-mix(in srgb, var(--error) 70%, var(--line));
+}
+.finding-part--explanation p {
+  color: var(--muted);
 }
 .finding-part--fix {
   border-left-color: var(--success);
@@ -381,11 +593,11 @@
 
 .evidence-list {
   list-style: none;
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 .evidence-list li {
   display: flex;
@@ -397,15 +609,22 @@
 .evidence-ref {
   font-family: var(--font-mono);
   font-size: 12px;
+  font-weight: 600;
   color: var(--primary);
-  background: transparent;
-  border: 1px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--line));
   border-radius: 6px;
-  padding: 1px 7px;
+  padding: 2px 8px;
   cursor: pointer;
+  flex: none;
+  transition: background 120ms ease;
 }
 .evidence-ref:hover {
-  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  background: color-mix(in srgb, var(--primary) 24%, transparent);
+}
+.evidence-ref:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
 }
 
 .evidence-preview {
@@ -413,26 +632,34 @@
   font-size: 12px;
   color: var(--muted);
   word-break: break-word;
+  min-width: 0;
 }
 
 .finding-card__rule {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
+  margin: 12px 0 0;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--bg);
   font-size: 12px;
   color: var(--muted);
+  line-height: 1.5;
+}
+.finding-card__rule .finding-part__label {
+  margin-right: 4px;
 }
 
-/* --- Empty findings --- */
+/* ====================== Empty findings ====================== */
 .empty-findings {
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--success);
   border-radius: var(--radius);
   background: var(--panel);
   padding: 18px;
+  box-shadow: var(--shadow-sm);
 }
 .empty-findings__headline {
   margin: 0 0 8px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--success);
 }
 .empty-findings__stats {
@@ -445,18 +672,24 @@
   margin: 0;
   font-size: 13px;
   color: var(--muted);
+  line-height: 1.55;
 }
 
-/* --- Responsive: stack panels on narrow screens --- */
-@media (max-width: 860px) {
+/* ============ Responsive: stack panels on narrow screens ============ */
+@media (max-width: 880px) {
   .app__workspace {
     grid-template-columns: 1fr;
-    /* Stack the panels and let the whole workspace scroll, so a long findings
-       panel is never clipped and doesn't fight the timeline for height. */
     grid-template-rows: auto auto;
     overflow: auto;
   }
   .app__panel {
     overflow: visible;
+  }
+  .panel__heading {
+    position: static;
+    padding: 0 0 10px;
+  }
+  .app__trust {
+    display: none; /* keep the narrow header uncluttered */
   }
 }
