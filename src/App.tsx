@@ -1,9 +1,14 @@
 import { useMemo, useRef, useState } from "react";
+import { Header } from "./components/Header";
 import { TimelinePanel } from "./components/TimelinePanel";
 import { FindingsPanel } from "./components/FindingsPanel";
-import { repeatedToolCallsSample } from "./samples/repeated-tool-calls";
-import { normalizeTrace } from "./lib/normalize";
+import { ValidationError } from "./components/ValidationError";
+import { SAMPLES, DEFAULT_SAMPLE } from "./samples";
+import { normalizeTrace, type NormalizedTrace } from "./lib/normalize";
 import { runDetectors } from "./lib/detectors";
+import { validateTrace, type ValidationError as ValidationErrorData } from "./lib/validate";
+import { generateReport, reportFilename } from "./lib/report";
+import { downloadTextFile, copyToClipboard } from "./lib/download";
 import {
   NO_SELECTION,
   selectEvent,
@@ -13,21 +18,25 @@ import {
 } from "./lib/selection";
 
 /**
- * Top-level workspace. Owns the only mutable state:
- *   - the current trace source (slice 6 will let the user change it)
- *   - the current selection (one finding OR one event, never both)
+ * Top-level workspace and the single owner of mutable state:
+ *   - `normalized`: the active trace (a sample or a successful upload)
+ *   - `activeSampleId`: which sample is selected, or null after an upload
+ *   - `selection`: one finding OR one event, never both
+ *   - `validationError`: an inline upload error, shown WITHOUT replacing the trace
  *
- * The normalized model, findings, and the highlighted-index set are all DERIVED
- * from those via useMemo, so they can never drift out of sync with the source.
- * (spec.md > Components: App; spec.md > Data Model)
+ * findings and the highlight set are derived from `normalized`/`selection`.
+ * Loading a new trace (sample switch or valid upload) clears selection and any
+ * error; a FAILED upload changes none of the trace state.
+ * (spec.md > Data Model: lifecycle)
  */
 export function App() {
-  // In slice 5 the source is fixed to the default sample; slice 6 adds the
-  // sample selector and upload. Kept as state now so that wiring is a small step.
-  const [trace] = useState(repeatedToolCallsSample);
+  const [normalized, setNormalized] = useState<NormalizedTrace>(() =>
+    normalizeTrace(DEFAULT_SAMPLE.trace, DEFAULT_SAMPLE.name),
+  );
+  const [activeSampleId, setActiveSampleId] = useState<string | null>(DEFAULT_SAMPLE.id);
   const [selection, setSelection] = useState<Selection>(NO_SELECTION);
+  const [validationError, setValidationError] = useState<ValidationErrorData | null>(null);
 
-  const normalized = useMemo(() => normalizeTrace(trace, "Repeated Tool Calls"), [trace]);
   const findings = useMemo(() => runDetectors(normalized), [normalized]);
   const highlighted = useMemo(
     () => highlightedIndices(selection, findings),
@@ -36,21 +45,60 @@ export function App() {
 
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // Clicking an evidence event id jumps the timeline to that row and selects it.
+  // Loading a new trace resets selection + clears any error. Used by both
+  // sample-switch and successful-upload paths.
+  function loadTrace(trace: NormalizedTrace, sampleId: string | null) {
+    setNormalized(trace);
+    setActiveSampleId(sampleId);
+    setSelection(NO_SELECTION);
+    setValidationError(null);
+  }
+
+  function selectSample(id: string) {
+    const sample = SAMPLES.find((s) => s.id === id);
+    if (!sample) return;
+    loadTrace(normalizeTrace(sample.trace, sample.name), sample.id);
+  }
+
+  async function uploadFile(file: File) {
+    const text = await file.text();
+    const result = validateTrace(text);
+    if (!result.ok) {
+      // Failed upload: show the error, preserve the active trace + findings.
+      setValidationError(result.error);
+      return;
+    }
+    const source = file.name.replace(/\.json$/i, "") || "uploaded-trace";
+    loadTrace(normalizeTrace(result.trace, source), null);
+  }
+
   function goToEvent(index: number) {
     setSelection(selectEvent(index));
-    const row = timelineRef.current?.querySelector<HTMLElement>(
-      `[data-event-index="${index}"]`,
-    );
-    row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    timelineRef.current
+      ?.querySelector<HTMLElement>(`[data-event-index="${index}"]`)
+      ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function reportText() {
+    return generateReport(normalized, findings, new Date());
+  }
+
+  function downloadReport() {
+    downloadTextFile(reportText(), reportFilename(normalized.source, new Date()));
   }
 
   return (
     <div className="app">
-      <header className="app__header">
-        <h1 className="app__title">AgentTrace Doctor</h1>
-        <span className="app__subtitle">evidence-first agent trace debugging</span>
-      </header>
+      <Header
+        activeSampleId={activeSampleId}
+        onSelectSample={selectSample}
+        onUploadFile={uploadFile}
+        onDownloadReport={downloadReport}
+        onCopyReport={() => copyToClipboard(reportText())}
+      />
+      {validationError && (
+        <ValidationError error={validationError} onDismiss={() => setValidationError(null)} />
+      )}
       <main className="app__workspace">
         <section className="app__panel app__panel--timeline" ref={timelineRef}>
           <TimelinePanel

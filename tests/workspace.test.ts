@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { normalizeTrace } from "../src/lib/normalize";
 import { runDetectors } from "../src/lib/detectors";
-import { repeatedToolCallsSample } from "../src/samples/repeated-tool-calls";
+import { DEFAULT_SAMPLE } from "../src/samples";
 import { eventPreview, truncate } from "../src/lib/preview";
 import type { Trace } from "../src/lib/schema";
 
 describe("default sample findings (what the workspace renders)", () => {
-  const normalized = normalizeTrace(repeatedToolCallsSample, "Repeated Tool Calls");
+  const normalized = normalizeTrace(DEFAULT_SAMPLE.trace, DEFAULT_SAMPLE.name);
   const findings = runDetectors(normalized);
 
   it("shows a possible-loop finding for the repeated search calls", () => {
@@ -15,15 +15,6 @@ describe("default sample findings (what the workspace renders)", () => {
     expect(loop!.certainty).toBe("possible");
     // The three repeated "weather tomorrow" search calls are e3/e5/e7 at indices 2,4,6.
     expect(loop!.eventIndices).toEqual([2, 4, 6]);
-  });
-
-  it("shows a separate confirmed-error finding for the fetch_url failure", () => {
-    const err = findings.find((f) => f.detector === "tool_error");
-    expect(err).toBeDefined();
-    expect(err!.certainty).toBe("confirmed");
-    // The error result is e10 (index 9), linked to call e9 (index 8).
-    expect(err!.eventIndices).toContain(9);
-    expect(err!.eventIndices).toContain(8);
   });
 
   it("evidence indices point at real timeline events", () => {

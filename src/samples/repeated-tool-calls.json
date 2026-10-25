@@ -1,0 +1,14 @@
+{
+  "events": [
+    { "id": "e1", "type": "tool_call", "tool_name": "search", "args": { "query": "best pizza near me" } },
+    { "id": "e2", "type": "tool_result", "tool_name": "search", "status": "ok", "call_id": "e1" },
+    { "id": "e3", "type": "tool_call", "tool_name": "search", "args": { "query": "weather tomorrow" } },
+    { "id": "e4", "type": "tool_result", "tool_name": "search", "status": "ok", "call_id": "e3" },
+    { "id": "e5", "type": "tool_call", "tool_name": "search", "args": { "query": "weather tomorrow" } },
+    { "id": "e6", "type": "tool_result", "tool_name": "search", "status": "ok", "call_id": "e5" },
+    { "id": "e7", "type": "tool_call", "tool_name": "search", "args": { "query": "weather tomorrow" } },
+    { "id": "e8", "type": "tool_result", "tool_name": "search", "status": "ok", "call_id": "e7" },
+    { "id": "e9", "type": "tool_call", "tool_name": "fetch_url", "args": { "url": "https://example.com/forecast" } },
+    { "id": "e10", "type": "tool_result", "tool_name": "fetch_url", "status": "ok", "call_id": "e9" }
+  ]
+}

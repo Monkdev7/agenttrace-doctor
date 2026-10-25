@@ -1,0 +1,10 @@
+{
+  "events": [
+    { "id": "t1", "type": "tool_call", "tool_name": "get_weather", "args": { "city": "Lisbon" } },
+    { "id": "t2", "type": "tool_result", "tool_name": "get_weather", "status": "ok", "call_id": "t1" },
+    { "id": "t3", "type": "tool_call", "tool_name": "book_flight", "args": { "from": "LIS", "to": "JFK", "date": "2026-11-02" } },
+    { "id": "t4", "type": "tool_result", "tool_name": "book_flight", "status": "error", "error": "PaymentDeclined: card ending 4242 was declined by the issuer", "call_id": "t3" },
+    { "id": "t5", "type": "tool_call", "tool_name": "notify_user", "args": { "message": "Could not book your flight." } },
+    { "id": "t6", "type": "tool_result", "tool_name": "notify_user", "status": "ok", "call_id": "t5" }
+  ]
+}

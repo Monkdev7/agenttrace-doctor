@@ -1,0 +1,10 @@
+{
+  "events": [
+    { "id": "c1", "type": "tool_call", "tool_name": "search", "args": { "query": "population of Japan" } },
+    { "id": "c2", "type": "tool_result", "tool_name": "search", "status": "ok", "call_id": "c1" },
+    { "id": "c3", "type": "tool_call", "tool_name": "calculator", "args": { "expression": "125000000 / 377975" } },
+    { "id": "c4", "type": "tool_result", "tool_name": "calculator", "status": "ok", "call_id": "c3" },
+    { "id": "c5", "type": "tool_call", "tool_name": "summarize", "args": { "text": "Japan has about 125 million people and a density near 331 per sq km." } },
+    { "id": "c6", "type": "tool_result", "tool_name": "summarize", "status": "ok", "call_id": "c5" }
+  ]
+}

@@ -59,7 +59,7 @@ Build mode: learn
   Learner check: Open the app, click the repeated-calls finding and watch its events highlight on the timeline; click an error event and see which finding references it; switch to the Clean Run sample and confirm it clearly reports no issues.
   Commit: `Add findings panel, event linking, and empty state`
 
-- [ ] **6. Upload, export, the three samples, and responsive polish complete the workflow**
+- [x] **6. Upload, export, the three samples, and responsive polish complete the workflow**
   Becomes usable: The full PoC — header sample selector (Repeated Tool Calls default · Tool Failure · Clean Run), JSON upload with non-destructive inline validation errors, Markdown report export (download primary + copy secondary, cited events only, safely escaped), and a layout that stacks/switches on narrow screens.
   Why now: Closes the end-to-end journey (load → diagnose → export) and brings in the real bundled samples and upload. Last so it builds on a proven detector+findings core.
   PRD ref: `prd.md > The Core Journey` (steps 1-2, 7-8), `prd.md > First screen and samples`, `prd.md > Trace upload and validation`, `prd.md > Markdown report export`, `prd.md > Screens and Layout` (responsiveness)
@@ -71,8 +71,24 @@ Build mode: learn
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 5 (findings + event linking: the kernel is visible and interactive, with time to reshape slice 6)
+- [x] Early usable behavior explored — after slice 5. Learner reviewed the running workspace (two panels, finding cards, bidirectional event linking, empty state) and confirmed the visual design matches the approved PRD; no changes requested.
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 6
+
+## Manual Demo Checklist (slice 6)
+
+Agent-verified (via tests / dev server / real report output):
+- [x] Three samples load; default is Repeated Tool Calls (`samples.test.ts`).
+- [x] Repeated Tool Calls → possible-loop finding; Tool Failure → confirmed-error finding; Clean Run → zero findings / empty state (`samples.test.ts`, `workspace.test.ts`).
+- [x] Valid uploaded JSON is accepted and analyzed; malformed JSON → parse error; schema-invalid → specific per-event error; the active trace is retained on failure (`upload.test.ts`, `validate.test.ts`).
+- [x] Report content: title, timestamp, source/counts, detector summary, per-finding four parts, cited-events-only, limitations note; safe Markdown escaping; filename `agenttrace-report-<source>-<timestamp>.md` (`report.test.ts` + real Tool Failure report inspected).
+- [x] `pnpm build` clean; `pnpm test` 62/62 pass; dev server serves the app with no runtime/network dependency.
+
+Needs the learner's eyes in the browser (visual/interaction):
+- [ ] Switch all three samples via the header selector; selections/expanded rows clear on switch.
+- [ ] Click a finding → its events highlight (cyan, distinct from status); click an evidence chip → timeline scrolls/selects; click an event → shows citing findings.
+- [ ] Download report produces a `.md` file; Copy report shows "Copied!" and yields identical content.
+- [ ] Upload a deliberately broken JSON → readable inline error appears, current trace survives; dismiss works.
+- [ ] Narrow the window → panels stack without clipping; each panel scrolls independently at wide widths.
 
 ## Final Review
 
