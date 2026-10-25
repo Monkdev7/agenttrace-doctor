@@ -1,16 +1,33 @@
-import type { Trace } from "../lib/schema";
+import type { NormalizedTrace } from "../lib/normalize";
 import { EventRow } from "./EventRow";
 
 /**
- * The left panel: the agent run as an ordered, top-to-bottom timeline.
- * (spec.md > Components: TimelinePanel; prd.md > Execution timeline)
+ * The left panel: the agent run as an ordered timeline. Receives the derived
+ * highlight set and current event selection from App; it owns no selection
+ * state itself. (spec.md > Components: TimelinePanel)
  */
-export function TimelinePanel({ trace }: { trace: Trace }) {
+export function TimelinePanel({
+  trace,
+  highlighted,
+  selectedEventIndex,
+  onSelectEvent,
+}: {
+  trace: NormalizedTrace;
+  highlighted: Set<number>;
+  selectedEventIndex: number | null;
+  onSelectEvent: (index: number) => void;
+}) {
   return (
     <div className="timeline">
-      <h2 className="timeline__heading">Execution timeline</h2>
+      <h2 className="panel__heading">Execution timeline</h2>
       {trace.events.map((event) => (
-        <EventRow key={event.id} event={event} />
+        <EventRow
+          key={event.index}
+          event={event}
+          highlighted={highlighted.has(event.index)}
+          selected={selectedEventIndex === event.index}
+          onSelect={() => onSelectEvent(event.index)}
+        />
       ))}
     </div>
   );

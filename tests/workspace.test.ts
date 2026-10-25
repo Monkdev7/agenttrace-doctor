@@ -1,0 +1,75 @@
+import { describe, it, expect } from "vitest";
+import { normalizeTrace } from "../src/lib/normalize";
+import { runDetectors } from "../src/lib/detectors";
+import { repeatedToolCallsSample } from "../src/samples/repeated-tool-calls";
+import { eventPreview, truncate } from "../src/lib/preview";
+import type { Trace } from "../src/lib/schema";
+
+describe("default sample findings (what the workspace renders)", () => {
+  const normalized = normalizeTrace(repeatedToolCallsSample, "Repeated Tool Calls");
+  const findings = runDetectors(normalized);
+
+  it("shows a possible-loop finding for the repeated search calls", () => {
+    const loop = findings.find((f) => f.detector === "repeated_calls");
+    expect(loop).toBeDefined();
+    expect(loop!.certainty).toBe("possible");
+    // The three repeated "weather tomorrow" search calls are e3/e5/e7 at indices 2,4,6.
+    expect(loop!.eventIndices).toEqual([2, 4, 6]);
+  });
+
+  it("shows a separate confirmed-error finding for the fetch_url failure", () => {
+    const err = findings.find((f) => f.detector === "tool_error");
+    expect(err).toBeDefined();
+    expect(err!.certainty).toBe("confirmed");
+    // The error result is e10 (index 9), linked to call e9 (index 8).
+    expect(err!.eventIndices).toContain(9);
+    expect(err!.eventIndices).toContain(8);
+  });
+
+  it("evidence indices point at real timeline events", () => {
+    for (const f of findings) {
+      for (const idx of f.eventIndices) {
+        expect(normalized.events[idx]).toBeDefined();
+      }
+    }
+  });
+});
+
+describe("empty findings state", () => {
+  it("a clean trace produces zero findings (empty state will render)", () => {
+    const clean: Trace = {
+      events: [
+        { id: "a", type: "tool_call", tool_name: "search", args: { q: "x" } },
+        { id: "b", type: "tool_result", tool_name: "search", status: "ok", call_id: "a" },
+        { id: "c", type: "tool_call", tool_name: "summarize", args: { text: "y" } },
+        { id: "d", type: "tool_result", tool_name: "summarize", status: "ok", call_id: "c" },
+      ],
+    };
+    const normalized = normalizeTrace(clean, "Clean Run");
+    expect(runDetectors(normalized)).toHaveLength(0);
+    expect(normalized.toolCount).toBe(2);
+  });
+});
+
+describe("evidence preview", () => {
+  it("previews a tool_call with its args", () => {
+    const n = normalizeTrace(
+      { events: [{ id: "1", type: "tool_call", tool_name: "search", args: { q: "hi" } }] },
+      "t",
+    );
+    expect(eventPreview(n.events[0])).toContain("search");
+    expect(eventPreview(n.events[0])).toContain("hi");
+  });
+
+  it("previews a tool_result error with its message", () => {
+    const n = normalizeTrace(
+      { events: [{ id: "1", type: "tool_result", tool_name: "fetch", status: "error", error: "HTTP 500" }] },
+      "t",
+    );
+    expect(eventPreview(n.events[0])).toContain("HTTP 500");
+  });
+
+  it("truncates long values", () => {
+    expect(truncate("x".repeat(200)).length).toBeLessThanOrEqual(80);
+  });
+});

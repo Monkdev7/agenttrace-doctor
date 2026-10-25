@@ -49,7 +49,7 @@ Build mode: learn
   Learner check: Not applicable alone (internal); visible in slice 5 findings panel.
   Commit: `Add explicit-error detector with tests`
 
-- [ ] **5. Findings appear in the workspace and link to their events**
+- [x] **5. Findings appear in the workspace and link to their events**
   Becomes usable: A two-panel workspace — timeline left, findings right. Each finding card shows the four separated parts (fact · evidence · explanation · fix) with certainty labels; clicking a finding highlights its events (distinct from status); clicking an event shows its detail and which findings cite it; a Clean-Run trace shows the explicit empty-findings message.
   Why now: Wires the kernel to the UI — this is the "oh, that's cool" beat (click a finding → it lights up the receipts). The core journey becomes demonstrable here.
   PRD ref: `prd.md > The Core Journey` (steps 4-6), `prd.md > Finding cards`, `prd.md > Execution timeline`, `prd.md > States and Boundaries` (empty findings, selection transitions)

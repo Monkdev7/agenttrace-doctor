@@ -13,6 +13,7 @@
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
+  flex: none;
 }
 
 .app__title {
@@ -26,11 +27,29 @@
   font-size: 13px;
 }
 
-.app__body {
+/* --- Two-panel workspace --- */
+.app__workspace {
   flex: 1;
   min-height: 0;
-  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line); /* shows as the divider between panels */
+}
+
+.app__panel {
+  min-height: 0;
   overflow: auto;
+  padding: 16px 18px;
+  background: var(--bg);
+}
+
+.panel__heading {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 12px;
 }
 
 /* --- Timeline --- */
@@ -40,22 +59,18 @@
   gap: 8px;
 }
 
-.timeline__heading {
-  font-size: 12px;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 4px;
-}
-
 .event-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   padding: 9px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
+  cursor: pointer;
+}
+
+.event-row__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .event-row__id {
@@ -113,4 +128,217 @@
 }
 .status--error .status-dot {
   background: var(--error);
+}
+
+.event-row__detail {
+  margin: 10px 0 2px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/*
+ * Highlight is a CYAN ring + tint from SELECTION — deliberately different from
+ * the green/amber STATUS badges, so a highlighted clean event never reads as an
+ * error. A selected event gets a slightly stronger ring.
+ */
+.event-row--highlighted {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--panel));
+}
+.event-row--selected {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* --- Findings --- */
+.findings__summary {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.summary-chip {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.summary-chip--loop {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.summary-chip--error {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.event-link-note {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.findings__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.finding-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 14px;
+  cursor: pointer;
+}
+.finding-card--selected {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.finding-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.finding-card__title {
+  font-weight: 600;
+}
+
+.certainty {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.certainty--possible {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.certainty--confirmed {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+/* The four parts: separated by a left accent stripe + label, not color alone. */
+.finding-part {
+  border-left: 3px solid var(--line);
+  padding: 6px 0 6px 12px;
+  margin: 8px 0;
+}
+.finding-part p {
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+.finding-part__label {
+  font-size: 10.5px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.finding-part--fact {
+  border-left-color: var(--ink);
+}
+.finding-part--evidence {
+  border-left-color: var(--primary);
+}
+.finding-part--explanation {
+  border-left-color: var(--error);
+}
+.finding-part--fix {
+  border-left-color: var(--success);
+}
+
+.evidence-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.evidence-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.evidence-ref {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--primary);
+  background: transparent;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  padding: 1px 7px;
+  cursor: pointer;
+}
+.evidence-ref:hover {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.evidence-preview {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-word;
+}
+
+.finding-card__rule {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- Empty findings --- */
+.empty-findings {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 18px;
+}
+.empty-findings__headline {
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: var(--success);
+}
+.empty-findings__stats {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+}
+.empty-findings__caveat {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* --- Responsive: stack panels on narrow screens --- */
+@media (max-width: 860px) {
+  .app__workspace {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(0, 1fr);
+  }
 }
