@@ -29,7 +29,7 @@ Build mode: learn
   Learner check: Not applicable alone (internal); exercised visibly in slice 6 via upload.
   Commit: `Add Zod validation, readable errors, and stable normalization`
 
-- [ ] **3. The repeated-tool-call detector (Detector 1) finds possible loops, with tests**
+- [x] **3. The repeated-tool-call detector (Detector 1) finds possible loops, with tests**
   Becomes usable: Given a normalized trace, Detector 1 emits findings for runs of 3+ consecutive identical tool calls, each citing its event indices, framed as a possible loop (never confirmed).
   Why now: This is half the kernel — the signature "evidence-first loop detection." Pure function first, with its exact resolved rule locked in by tests, before any UI wiring.
   PRD ref: `prd.md > Finding cards`, `prd.md > Resolved Decisions` (repeated-call rule)
