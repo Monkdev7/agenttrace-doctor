@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AgentTrace Doctor — PRD</title>
+<style>
+  :root{
+    --bg:#0d1220; --panel:#141b2d; --panel2:#1b2439; --ink:#e7edf6; --muted:#93a1b5;
+    --line:#293349; --primary:#3fd0e0; --primaryb:#2f81f7; --success:#4cc38a; --error:#e0943f;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px;}
+  header h1{font-size:34px;margin:0 0 6px;letter-spacing:-.5px;}
+  header .tag{color:var(--muted);font-size:14px;}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  code{background:#0a0e18;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px;color:#bfe9f0;}
+  .banner{margin:18px 0 28px;padding:14px 18px;border:1px solid var(--line);
+    border-left:4px solid var(--primary);border-radius:var(--radius);background:var(--panel);}
+  h2{font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);
+    margin:40px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin:14px 0;}
+  /* journey */
+  .journey{display:flex;flex-wrap:wrap;gap:10px;counter-reset:j;}
+  .step{flex:1 1 150px;min-width:150px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:var(--radius);padding:14px 14px 14px 42px;position:relative;font-size:13.5px;color:var(--muted);counter-increment:j;}
+  .step::before{content:counter(j);position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:50%;
+    background:var(--bg);border:1px solid var(--primary);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  .step b{color:var(--ink);display:block;margin-bottom:3px;font-size:14px;}
+  /* two-panel mock */
+  .mock{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:720px){.mock{grid-template-columns:1fr}}
+  .mp{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
+  .mp h4{margin:0 0 10px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--primary);}
+  .ev{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;margin:6px 0;font-size:12.5px;}
+  .ev .id{color:var(--muted);} .ev .nm{font-weight:600;}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .d-ok{background:var(--success);} .d-err{background:var(--error);} .d-watch{background:var(--primary);}
+  .ev.sel{outline:2px solid var(--primary);outline-offset:1px;}
+  .badge{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:1px 7px;border-radius:999px;margin-left:auto;}
+  .b-ok{color:var(--success);border:1px solid var(--success);}
+  .b-err{color:var(--error);border:1px solid var(--error);}
+  .b-watch{color:var(--primary);border:1px solid var(--primary);}
+  /* finding card */
+  .finding .part{border-left:3px solid var(--line);padding:8px 10px;margin:7px 0;border-radius:6px;background:var(--panel2);}
+  .finding .lab{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+  .finding .part.fact{border-left-color:var(--ink);}
+  .finding .part.evi{border-left-color:var(--primary);}
+  .finding .part.exp{border-left-color:var(--error);}
+  .finding .part.fix{border-left-color:var(--success);}
+  .finding .part p{margin:0;font-size:13px;}
+  .ctitle{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:4px;}
+  /* reveals */
+  details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin:10px 0;overflow:hidden;}
+  details[open]{border-color:var(--primary);}
+  summary{cursor:pointer;padding:14px 18px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{color:var(--primary);}
+  details .body{padding:0 18px 16px;}
+  ul{margin:8px 0;padding-left:20px;} li{margin:5px 0;font-size:14.5px;}
+  /* swatches */
+  .sw{display:inline-flex;align-items:center;gap:6px;margin:4px 14px 4px 0;font-size:13px;}
+  .chip{width:16px;height:16px;border-radius:4px;border:1px solid var(--line);}
+  .foot{color:var(--muted);font-size:13px;margin-top:40px;text-align:center;}
+  .note{color:var(--muted);font-size:13px;margin:4px 0 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AgentTrace Doctor — PRD</h1>
+    <div class="tag">Product Requirements · status: draft · Markdown (<code>prd.md</code>) is canonical</div>
+  </header>
+
+  <div class="banner">
+    A local, evidence-first debugging tool: load an agent's execution trace, detect suspicious patterns with
+    <strong>deterministic rules</strong>, and explain each finding with a link to the exact events that triggered it.
+    No LLM · no API key · no backend.
+  </div>
+
+  <h2>The Core Journey</h2>
+  <div class="journey">
+    <div class="step"><b>Open</b> Loads straight into the <em>Repeated Tool Calls</em> sample — timeline + findings already populated.</div>
+    <div class="step"><b>Orient</b> Header: sample selector (3 samples) · Upload JSON · Export report.</div>
+    <div class="step"><b>Read</b> Two panels — timeline left, findings right.</div>
+    <div class="step"><b>Connect</b> Click a finding → events highlight. Click an event → see detail + which finding cites it.</div>
+    <div class="step"><b>Bring your own</b> Upload JSON; invalid files show an inline error and keep the current trace.</div>
+    <div class="step"><b>Export</b> Download a Markdown report (copy as backup). Fully local.</div>
+  </div>
+
+  <h2>The Workspace (two-panel)</h2>
+  <div class="mock">
+    <div class="mp">
+      <h4>Execution Timeline</h4>
+      <div class="ev sel"><span class="dot d-watch"></span><span class="id">#3</span> <span class="nm mono">search</span><span class="badge b-watch">Watch</span></div>
+      <div class="ev"><span class="dot d-ok"></span><span class="id">#4</span> <span class="nm mono">search</span><span class="badge b-ok">OK</span></div>
+      <div class="ev sel"><span class="dot d-watch"></span><span class="id">#5</span> <span class="nm mono">search</span><span class="badge b-watch">Watch</span></div>
+      <div class="ev"><span class="dot d-err"></span><span class="id">#8</span> <span class="nm mono">fetch_url</span><span class="badge b-err">Error</span></div>
+      <p class="note">Selected finding highlights supporting events (cyan outline), kept distinct from status (dot/badge).</p>
+    </div>
+    <div class="mp">
+      <h4>Findings</h4>
+      <div class="finding">
+        <div class="ctitle"><span class="dot d-watch"></span> Repeated tool calls <span class="badge b-watch">Possible loop</span></div>
+        <div class="part fact"><div class="lab">Observed fact</div><p><span class="mono">search</span> called 4× with identical arguments.</p></div>
+        <div class="part evi"><div class="lab">Evidence</div><p class="mono">#3, #5, #7, #9 — click to highlight</p></div>
+        <div class="part exp"><div class="lab">Potential explanation</div><p>May be stuck in a loop — worth investigating, not proven.</p></div>
+        <div class="part fix"><div class="lab">Suggested fix</div><p>Add a repeat guard or vary the query; check why results aren't advancing.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Behaviors &amp; States</h2>
+
+  <details open>
+    <summary><span>Finding cards — fact vs. inference</span><span class="chev">▾</span></summary>
+    <div class="body">
+      <ul>
+        <li><strong>Explicit errors</strong> → labeled <em>confirmed errors reported by the trace</em>; show the real message + event IDs; no invented root cause.</li>
+        <li><strong>Repeated calls</strong> → state the fact; label interpretation <em>"Possible loop / Worth investigating."</em></li>
+        <li>Four parts always visually separated: fact · evidence · explanation · fix — via layout &amp; labels, not color alone.</li>
+        <li>Inline evidence preview (tool + args / error), truncated with expand; event refs jump to the timeline.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Timeline event detail</span><span class="chev">▾</span></summary>
+    <div class="body">
+      <ul>
+        <li>Each row: event ID · type · tool name · status indicator.</li>
+        <li>Tool calls → concise arg summary, expand for full JSON. Results → <code>OK</code> (summary only if present in input). Errors → short message preview, expand for full.</li>
+        <li>Missing/empty fields handled gracefully. Select reveals detail in place — no scroll loss.</li>
+        <li>Status colors: <span class="mono">ok</span>=green · error=amber · repeated=primary "Watch" (never error-colored).</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Upload &amp; validation (non-destructive)</span><span class="chev">▾</span></summary>
+    <div class="body">
+      <ul>
+        <li>Invalid upload <strong>never</strong> wipes the current trace or blocks the workspace.</li>
+        <li>Inline, dismissable error names the event ID/index, the bad field, the expected format, and how to fix — e.g. <em>"Event #4 is a <code>tool_result</code> but has no <code>status</code> field."</em></li>
+        <li>Malformed JSON → parse error with line/column when available. Workspace replaced only after a valid parse.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Clean Run — empty findings</span><span class="chev">▾</span></summary>
+    <div class="body">
+      <ul>
+        <li>"No issues detected by the current detectors," with events-analyzed and distinct-tool counts where computable.</li>
+        <li>Explicitly notes: no issues <em>by the implemented rules</em> — not a proof of correctness. This is the kernel defending itself.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Markdown report</span><span class="chev">▾</span></summary>
+    <div class="body">
+      <ul>
+        <li>Title + timestamp · source/counts · detector summary · one section per finding (fact, cited IDs, preview, explanation, rule, fix) · no-findings statement · limitations note.</li>
+        <li>Only <strong>cited</strong> events included, safely escaped. Full raw trace excluded.</li>
+        <li>Download <code>.md</code> primary; Copy secondary; identical content; fully local.</li>
+      </ul>
+    </div>
+  </details>
+
+  <h2>Look &amp; Feel</h2>
+  <div class="card">
+    <div class="sw"><span class="chip" style="background:#3fd0e0"></span> Primary — cyan (selection, "watch")</div>
+    <div class="sw"><span class="chip" style="background:#4cc38a"></span> Success — muted green (<span class="mono">ok</span>)</div>
+    <div class="sw"><span class="chip" style="background:#e0943f"></span> Error — muted amber (real failures only)</div>
+    <div class="sw"><span class="chip" style="background:#141b2d"></span> Surface — deep navy / charcoal</div>
+    <p class="note">System sans for UI, system monospace for IDs/JSON/errors. No external fonts. No decorative red. Status legible without color.</p>
+  </div>
+
+  <h2>Boundary — building vs. deferred</h2>
+  <div class="mock">
+    <div class="mp"><h4 style="color:var(--success)">Building (MVP)</h4>
+      <ul>
+        <li>Dark two-panel workspace + header</li>
+        <li>3 samples (Repeated · Failure · Clean)</li>
+        <li>Owned JSON schema + validation + stable arg normalization</li>
+        <li>Detector 1 &amp; Detector 2 (mandatory)</li>
+        <li>Timeline, finding cards, bi-directional highlight</li>
+        <li>Markdown report (cited events only)</li>
+        <li>Responsive layout</li>
+      </ul>
+    </div>
+    <div class="mp"><h4 style="color:var(--error)">Deferred / Non-goals</h4>
+      <ul>
+        <li>Detector 3 (same tool fails N+×) — stretch, additive only</li>
+        <li>PDF / other exports</li>
+        <li>Format adapters (LangSmith, OTel, OpenAI)</li>
+        <li>Persistence / saved reports</li>
+        <li>LLM diagnosis · general cycle detection</li>
+        <li>Accounts · API keys · backend</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Open Questions</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Report filename convention</strong> — minor; settle in <code>4-spec</code> or build. Does not block approval.</li>
+      <li><strong>Detector 1 threshold/window</strong> (2+ identical calls; consecutive vs. anywhere) — a detection detail for <code>4-spec</code>, before the detector is built. Does not block product approval.</li>
+    </ul>
+  </div>
+
+  <p class="foot">Companion to <code>devpost/prd.md</code> · regenerated after revisions · Markdown remains canonical</p>
+</div>
+</body>
+</html>

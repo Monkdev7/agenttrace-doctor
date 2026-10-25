@@ -1,0 +1,13 @@
+# Personal learning context for Devpost Learn (kept out of commits by default)
+/devpost/learner-profile.md
+
+# Local secrets; keep a secret-free .env.example if you add one
+.env
+.env.*
+!.env.example
+
+# Node / build artifacts
+node_modules/
+dist/
+*.log
+*.tsbuildinfo

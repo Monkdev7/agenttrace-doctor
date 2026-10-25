@@ -1,0 +1,46 @@
+/*
+ * Theme tokens for the dark "diagnostic instrument" aesthetic.
+ * Everything visual references these CSS variables, so the palette lives
+ * in exactly one place. (spec.md > Look and Feel)
+ */
+:root {
+  /* Surfaces */
+  --bg: #0d1220;
+  --panel: #141b2d;
+  --panel-2: #1b2439;
+  --line: #293349;
+
+  /* Text */
+  --ink: #e7edf6;
+  --muted: #93a1b5;
+
+  /* Semantic accents (restrained; red is NOT used decoratively) */
+  --primary: #3fd0e0;   /* selection, highlight, "watch"/possible-loop */
+  --success: #4cc38a;   /* ok results */
+  --error: #e0943f;     /* actual reported errors (amber, not red) */
+
+  --radius: 10px;
+
+  /* Font stacks: system sans for UI, system mono for data. No downloads. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+}

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AgentTrace Doctor — Technical Spec</title>
+<style>
+  :root{
+    --bg:#0d1220; --panel:#141b2d; --panel2:#1b2439; --ink:#e7edf6; --muted:#93a1b5;
+    --line:#293349; --primary:#3fd0e0; --success:#4cc38a; --error:#e0943f; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px;}
+  header h1{font-size:34px;margin:0 0 6px;letter-spacing:-.5px;}
+  header .tag{color:var(--muted);font-size:14px;}
+  code,.mono,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  code{background:#0a0e18;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px;color:#bfe9f0;}
+  .banner{margin:18px 0 28px;padding:14px 18px;border:1px solid var(--line);
+    border-left:4px solid var(--primary);border-radius:var(--radius);background:var(--panel);}
+  h2{font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);
+    margin:40px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin:14px 0;}
+  /* pipeline */
+  .pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;}
+  .stage{flex:1 1 130px;min-width:120px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:10px;padding:12px;text-align:center;}
+  .stage b{display:block;font-size:13px;color:var(--primary);margin-bottom:3px;}
+  .stage span{font-size:12px;color:var(--muted);}
+  .pa{display:flex;align-items:center;color:var(--primary);font-size:20px;padding:0 8px;}
+  @media(max-width:760px){.pa{transform:rotate(90deg);width:100%;padding:6px 0}}
+  pre{background:#0a0e18;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;
+    font-size:12.5px;line-height:1.5;color:#cfe3ec;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin:10px 0;overflow:hidden;}
+  details[open]{border-color:var(--primary);}
+  summary{cursor:pointer;padding:14px 18px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  summary::-webkit-details-marker{display:none}
+  summary .ref{font-size:11px;color:var(--muted);font-weight:400;}
+  details .body{padding:0 18px 16px;}
+  ul{margin:8px 0;padding-left:20px;} li{margin:5px 0;font-size:14px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0;}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;}
+  th{color:var(--primary);font-weight:600;}
+  .foot{color:var(--muted);font-size:13px;margin-top:40px;text-align:center;}
+  .ok{color:var(--success);} .warn{color:var(--error);} .pri{color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AgentTrace Doctor — Technical Spec</h1>
+    <div class="tag">Blueprint · status: draft · Markdown (<code>spec.md</code>) is canonical</div>
+  </header>
+
+  <div class="banner">
+    A browser-only React + TypeScript app. <strong>No backend, no database, no LLM, no network</strong> in the core
+    workflow. Pure functions do the work: <span class="mono">parse → validate → normalize → detect → render</span>.
+  </div>
+
+  <h2>The Processing Pipeline</h2>
+  <div class="pipe">
+    <div class="stage"><b>raw JSON</b><span>sample or upload</span></div>
+    <div class="pa">→</div>
+    <div class="stage"><b>parse</b><span>JSON.parse</span></div>
+    <div class="pa">→</div>
+    <div class="stage"><b>validate</b><span>Zod + readable errors</span></div>
+    <div class="pa">→</div>
+    <div class="stage"><b>normalize</b><span>index · argsKey · link</span></div>
+    <div class="pa">→</div>
+    <div class="stage"><b>detect</b><span>D1 + D2</span></div>
+    <div class="pa">→</div>
+    <div class="stage"><b>render</b><span>timeline + findings</span></div>
+  </div>
+  <p class="tag" style="margin-top:8px">Each stage is a separate pure function — independently testable, no detector re-parses or re-normalizes.</p>
+
+  <h2>Component &amp; Data Flow</h2>
+  <pre>
+                         ┌─────────────────────────────┐
+                         │          App (state)         │
+                         │ currentTrace · findings ·    │
+                         │ selectedFinding · selectedEvt│
+                         │ expandedEvents · validationErr│
+                         └───────────┬─────────────────┘
+          ┌──────────────┬──────────┴───────┬──────────────┐
+          ▼              ▼                  ▼              ▼
+      ┌────────┐   ┌───────────┐     ┌────────────┐  ┌──────────────┐
+      │ Header │   │ Timeline  │     │  Findings  │  │ ValidationErr│
+      │ sample │   │  Panel    │◄───►│   Panel    │  │  (inline)    │
+      │ upload │   │ EventRow  │ sel │ FindingCard│  └──────────────┘
+      │ export │   └───────────┘     └────────────┘
+      └────────┘
+                   click finding → highlight eventIndices (distinct from status)
+                   click event   → show event + findings that cite its index
+  </pre>
+
+  <h2>Selection transitions (no stale selections)</h2>
+  <div class="card">
+    <ul>
+      <li><b>Click finding</b> → set finding, <span class="warn">clear event</span>, highlight its <code>eventIndices</code>.</li>
+      <li><b>Click event</b> → set event, <span class="warn">clear finding</span>; details show the event + all findings citing its index.</li>
+      <li><b>Failed upload</b> → <span class="ok">preserve</span> current trace + findings; show error only.</li>
+      <li><b>Switch sample / valid upload</b> → recompute findings, <span class="warn">clear</span> selections + expanded + error.</li>
+      <li>Highlight always visually distinct from execution status.</li>
+    </ul>
+  </div>
+
+  <h2>Detector Algorithms</h2>
+  <div class="cols">
+    <div>
+      <div class="card"><b class="pri">D1 — Repeated tool calls</b> <span class="tag">(mandatory)</span>
+<pre>calls = tool_call events, in order
+ (tool_result ignored for sequencing)
+walk calls, tracking a run:
+  same tool_name AND same argsKey
+     → extend run
+  else
+     → if run ≥ 3: emit
+       start new run
+end → if run ≥ 3: emit</pre>
+        <ul>
+          <li>Run of 2 → <span class="warn">nothing</span>.</li>
+          <li>Cite every call in the run.</li>
+          <li>Two runs split by another call → two findings.</li>
+          <li>Labeled <span class="pri">possible loop</span>, never confirmed.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card"><b class="warn">D2 — Explicit tool errors</b> <span class="tag">(mandatory)</span>
+<pre>for each tool_result
+    with status == "error":
+  indices = [result.index]
+  if call_id resolves:
+     indices += [call.index]
+  emit finding(indices, error)</pre>
+        <ul>
+          <li>Unmatched <code>call_id</code> → still emit, cite result only (<span class="ok">no crash</span>).</li>
+          <li>Show the real error message; no invented root cause.</li>
+          <li>Repeated-failure aggregation = stretch D3, must not delay D1/D2.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="tag"><b>Stable normalization:</b> recursively sort object keys, preserve array order, strip nothing (timestamps/nonces kept). Equal <code>stableStringify</code> output ⇒ identical args.</p>
+
+  <h2>Trace Schema (owned, minimal)</h2>
+  <table>
+    <tr><th>Field</th><th>tool_call</th><th>tool_result</th><th>notes</th></tr>
+    <tr><td><code>id</code></td><td>required, unique</td><td>required, unique</td><td>shown to user</td></tr>
+    <tr><td><code>type</code></td><td>"tool_call"</td><td>"tool_result"</td><td>discriminant</td></tr>
+    <tr><td><code>tool_name</code></td><td>required</td><td>required</td><td></td></tr>
+    <tr><td><code>args</code></td><td>required (obj)</td><td>—</td><td>normalized</td></tr>
+    <tr><td><code>status</code></td><td>—</td><td>"ok" | "error"</td><td></td></tr>
+    <tr><td><code>error</code></td><td>—</td><td>optional</td><td>with error status</td></tr>
+    <tr><td><code>call_id</code></td><td>—</td><td>optional</td><td>→ a call's id</td></tr>
+  </table>
+  <p class="tag">Internal model adds <code>index</code> (positional join key), <code>argsKey</code>, <code>linkedCallIndex</code>. Findings join on <code>index</code>; IDs are displayed.</p>
+
+  <h2>File Structure</h2>
+  <pre>src/
+├── App.tsx                 workspace + state + pipeline wiring
+├── components/  Header · TimelinePanel · EventRow · FindingsPanel
+│               FindingCard · ValidationError · EmptyFindings
+├── lib/
+│   ├── schema.ts           Zod schema + inferred types
+│   ├── validate.ts         parse + validate + format errors
+│   ├── normalize.ts        index · stableStringify · call linking
+│   ├── report.ts           Markdown report + filename
+│   └── detectors/  index · repeatedCalls · toolErrors
+├── samples/  repeated-tool-calls · tool-failure · clean-run (.json)
+└── styles/   theme.css (CSS vars) · app.css
+tests/  normalize · repeatedCalls · toolErrors · validate · report  (Vitest)</pre>
+
+  <h2>Stack &amp; Run</h2>
+  <div class="card">
+    <ul>
+      <li>React 18 + Vite 5 + TypeScript · Zod · Vitest · pnpm. No runtime services, keys, or cost.</li>
+      <li><code>pnpm install</code> → <code>pnpm dev</code> (open the local URL) → record the demo. <code>pnpm build</code> / <code>pnpm test</code>.</li>
+      <li>Submission: demo video <strong>and</strong> public GitHub repo. Static deploy optional, only after mandatory tests pass.</li>
+    </ul>
+  </div>
+
+  <h2>Tests &amp; Failure Modes</h2>
+  <div class="cols">
+    <div class="card"><b>Vitest (pure functions)</b>
+      <ul>
+        <li>normalize: key-order independent, array-order kept, nothing stripped</li>
+        <li>D1: ≥3 fires, 2 doesn't, resets, results-skipped, two runs → two</li>
+        <li>D2: error → finding, call_id links, unmatched doesn't crash</li>
+        <li>validate: malformed JSON, missing status, wrong type, valid passes</li>
+        <li>report: cited-only, safe escaping, filename</li>
+      </ul>
+    </div>
+    <div class="card"><b>Failure modes → fallback</b>
+      <ul>
+        <li>Bad JSON → inline parse error; trace kept</li>
+        <li>Schema error → specific per-event message; trace kept</li>
+        <li>Unmatched <code>call_id</code> → finding on result only</li>
+        <li>Missing optional fields → rendered gracefully</li>
+        <li>All-clean trace → EmptyFindings (not an error)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Open Blockers</h2>
+  <div class="card"><span class="ok">None.</span> All consequential decisions resolved; scope &amp; PRD honored; no runtime dependency to verify. Dependency versions confirmed by a clean <code>pnpm build</code> + <code>pnpm test</code> early in <code>5-build</code>.</div>
+
+  <p class="foot">Companion to <code>devpost/spec.md</code> · regenerated after revisions · Markdown remains canonical</p>
+</div>
+</body>
+</html>

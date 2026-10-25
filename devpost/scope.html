@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AgentTrace Doctor — Scope</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c2330; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a313c; --fact:#2f81f7; --evidence:#58a6ff; --explain:#d29922; --fix:#3fb950;
+    --cut:#f85149; --accent:#2f81f7; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+  header h1{font-size:34px;margin:0 0 6px;letter-spacing:-.5px;}
+  header .tag{color:var(--muted);font-size:15px;}
+  .banner{margin:18px 0 28px;padding:14px 18px;border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:var(--radius);background:var(--panel);}
+  h2{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+    margin:36px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:14px 0;}
+  .kernel{border-left:4px solid var(--accent);}
+  code{background:#0b0f14;border:1px solid var(--line);border-radius:6px;padding:1px 6px;
+    font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#c9d8ec;}
+  /* flow diagram */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:8px 0 4px;}
+  .node{flex:1 1 150px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;min-width:150px;}
+  .node h4{margin:0 0 6px;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);}
+  .node p{margin:0;font-size:13.5px;color:var(--muted);}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--accent);
+    font-size:24px;padding:0 10px;}
+  @media(max-width:700px){.arrow{transform:rotate(90deg);width:100%;padding:6px 0}}
+  /* finding anatomy */
+  .finding{display:grid;grid-template-columns:1fr;gap:10px;}
+  .part{border-radius:10px;padding:12px 14px;border:1px solid var(--line);}
+  .part .lab{font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+  .p-fact{border-left:4px solid var(--fact);}   .p-fact .lab{color:var(--fact);}
+  .p-evi{border-left:4px solid var(--evidence);} .p-evi .lab{color:var(--evidence);}
+  .p-exp{border-left:4px solid var(--explain);}  .p-exp .lab{color:var(--explain);}
+  .p-fix{border-left:4px solid var(--fix);}      .p-fix .lab{color:var(--fix);}
+  .part p{margin:0;font-size:14px;}
+  /* reveals */
+  details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    margin:10px 0;overflow:hidden;}
+  details[open]{border-color:var(--accent);}
+  summary{cursor:pointer;padding:14px 18px;font-weight:600;list-style:none;display:flex;
+    justify-content:space-between;align-items:center;}
+  summary::-webkit-details-marker{display:none}
+  summary .pill{font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:2px 10px;border-radius:999px;}
+  .pill-now{background:rgba(63,185,80,.15);color:var(--fix);border:1px solid var(--fix);}
+  .pill-later{background:rgba(210,153,34,.15);color:var(--explain);border:1px solid var(--explain);}
+  .pill-cut{background:rgba(248,81,73,.12);color:var(--cut);border:1px solid var(--cut);}
+  details .body{padding:0 18px 16px;}
+  ul{margin:8px 0;padding-left:20px;} li{margin:6px 0;}
+  .crit{counter-reset:c;list-style:none;padding:0;}
+  .crit li{counter-increment:c;padding-left:40px;position:relative;margin:10px 0;}
+  .crit li::before{content:counter(c);position:absolute;left:0;top:0;width:26px;height:26px;
+    border-radius:50%;background:var(--panel2);border:1px solid var(--accent);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .crit li.stretch::before{border-color:var(--explain);color:var(--explain);}
+  .foot{color:var(--muted);font-size:13px;margin-top:40px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AgentTrace Doctor</h1>
+    <div class="tag">Scope · status: draft · Markdown (<code>scope.md</code>) is canonical</div>
+  </header>
+
+  <div class="banner">
+    An evidence-first debugging tool that loads an AI agent's execution trace, detects suspicious
+    patterns with <strong>deterministic rules</strong>, and explains each finding with a direct link
+    to the exact events that triggered it. No LLM, no API key, no network.
+  </div>
+
+  <h2>User → Core Loop → Proof</h2>
+  <div class="flow">
+    <div class="node">
+      <h4>The User</h4>
+      <p>A student or indie dev whose agent just looped or kept erroring, and who can't see why from raw logs.</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node">
+      <h4>Core Loop</h4>
+      <p>Load a sample or upload JSON → see the run as a timeline → detectors list findings → read evidence + fix → export report.</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node">
+      <h4>The Proof</h4>
+      <p>Click a finding and watch it light up the exact events that justify it — and the same evidence lands in the exported Markdown report.</p>
+    </div>
+  </div>
+
+  <h2>The Unique Kernel</h2>
+  <div class="card kernel">
+    Every finding is backed by evidence, not a model's opinion. The evidence <em>is</em> the product.
+    Delete the event-level evidence linking and the facts/explanation separation, and this becomes just
+    another chatbot — so that separation is the thing to protect.
+  </div>
+
+  <h2>Anatomy of a Finding (the visual differentiation)</h2>
+  <p style="color:var(--muted);font-size:14px;margin:0 0 6px">
+    Every finding keeps these four parts visually distinct, so a reader can never mistake an interpretation for a fact:
+  </p>
+  <div class="finding">
+    <div class="part p-fact"><div class="lab">1 · Observed fact</div>
+      <p>Tool <code>search</code> was called 4 times with identical arguments.</p></div>
+    <div class="part p-evi"><div class="lab">2 · Supporting evidence</div>
+      <p>Events <code>#3</code>, <code>#5</code>, <code>#7</code>, <code>#9</code> — click to highlight on the timeline.</p></div>
+    <div class="part p-exp"><div class="lab">3 · Potential explanation</div>
+      <p>May indicate the agent is stuck in a loop — <em>possible</em>, not certain.</p></div>
+    <div class="part p-fix"><div class="lab">4 · Suggested fix</div>
+      <p>Add a repeat guard or vary the query; check why the result isn't advancing the plan.</p></div>
+  </div>
+
+  <h2>Scope Boundary</h2>
+
+  <details open>
+    <summary><span>Now — in the MVP</span><span class="pill pill-now">Now</span></summary>
+    <div class="body">
+      <ul>
+        <li><strong>Owned minimal trace format</strong>: ordered events with <code>id</code>, <code>type</code> (<code>tool_call</code>/<code>tool_result</code>), <code>tool_name</code>, <code>args</code>, <code>status</code>, optional <code>error</code>, optional <code>call_id</code>. Fields conditional on <code>type</code>.</li>
+        <li><strong>Upload + bundled samples</strong>, validated with clear, human-readable errors.</li>
+        <li><strong>Parsing layer</strong> → normalized internal representation; seam left open for future adapters.</li>
+        <li><strong>Stable JSON normalization</strong> of <code>args</code> so key order never causes a false mismatch.</li>
+        <li><strong>Detector 1 (mandatory)</strong>: repeated identical tool calls → possible loop. Exact repeats only.</li>
+        <li><strong>Detector 2 (mandatory)</strong>: explicit tool errors → surfaces error evidence.</li>
+        <li><strong>Execution timeline</strong> + <strong>finding → timeline linking</strong>.</li>
+        <li><strong>Export a Markdown report</strong> (the only export format in the MVP).</li>
+        <li><strong>Fully local</strong>: no sign-up, no API key, no network.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Later — worth doing, not now</span><span class="pill pill-later">Later</span></summary>
+    <div class="body">
+      <ul>
+        <li><strong>Detector 3 (stretch)</strong>: same tool erroring N+ times. Additive only — must not delay the core.</li>
+        <li>PDF and other export formats.</li>
+        <li>Adapters for LangSmith, OpenTelemetry GenAI spans, OpenAI tool-call logs.</li>
+        <li>Optional LLM narration — strictly additive, never required.</li>
+        <li>General cycle / repeating-subsequence detection.</li>
+        <li>Deployment (optional for submission).</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>Explicitly cut — with a reason</span><span class="pill pill-cut">Cut</span></summary>
+    <div class="body">
+      <ul>
+        <li><strong>LLM-based diagnosis</strong> — the "generic chatbot" failure mode the kernel exists to avoid; non-reproducible.</li>
+        <li><strong>General cycle detection</strong> — too ambiguous to define reliably; false-positive risk undermines the trust-first promise.</li>
+        <li><strong>Real third-party trace ingestion</strong> — a full parser would eat the whole budget; the seam stays open without paying now.</li>
+        <li><strong>Accounts / API keys / back end</strong> — local and stateless by design.</li>
+      </ul>
+    </div>
+  </details>
+
+  <h2>Acceptance Criteria</h2>
+  <ol class="crit">
+    <li>Loads a bundled sample trace and renders it as a clear, ordered execution timeline.</li>
+    <li>Uploads are validated; invalid JSON is rejected with a clear, human-readable error.</li>
+    <li>Detector 1 (mandatory) flags 2+ identical tool calls and cites exact event IDs.</li>
+    <li>Detector 2 (mandatory) flags every <code>status: error</code> result and shows the error as evidence.</li>
+    <li>Every finding cites supporting event IDs, states the fact, explains the rule, and separates facts from interpretations.</li>
+    <li>Each finding visually separates the four parts: fact · evidence · explanation · fix.</li>
+    <li>Selecting a finding highlights its supporting events on the timeline.</li>
+    <li>Exports a Markdown debugging report containing the findings and their evidence.</li>
+    <li>Primary demo path runs fully locally — sample → diagnosis → export — with no account, key, or network call.</li>
+    <li class="stretch">Stretch: Detector 3 flags the same tool erroring N+ times, with the same citations and separation.</li>
+  </ol>
+
+  <p class="foot">Companion to <code>devpost/scope.md</code> · regenerated after revisions · Markdown remains canonical</p>
+</div>
+</body>
+</html>
