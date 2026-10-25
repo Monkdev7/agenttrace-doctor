@@ -19,7 +19,7 @@ Build mode: learn
   Learner check: Open the app in the browser and confirm you see the sample agent run as an ordered list of events, in the dark instrument styling.
   Commit: `Scaffold app and render trace timeline`
 
-- [ ] **2. Validation turns raw JSON into a trusted, normalized model with readable errors**
+- [x] **2. Validation turns raw JSON into a trusted, normalized model with readable errors**
   Becomes usable: Any JSON (sample or arbitrary) runs through parse → Zod validate → normalize; valid traces render, invalid ones produce specific, human-readable messages (event index/ID, field, expected value, fix). Args are normalized with stable key-sorted stringification.
   Why now: This is the trust foundation — every detector and the report depend on a correct normalized model, and the evidence-first error wording is part of the kernel's honesty. Building and testing it before the detectors means they run on verified data.
   PRD ref: `prd.md > Trace upload and validation`

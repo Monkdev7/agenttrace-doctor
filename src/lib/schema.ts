@@ -40,7 +40,27 @@ export const traceEventSchema = z.discriminatedUnion("type", [
 ]);
 
 export const traceSchema = z.object({
-  events: z.array(traceEventSchema),
+  // `superRefine` runs after the per-event checks pass, so here we can assert a
+  // cross-event rule: every event id must be unique. We attach the issue to the
+  // exact offending element (path = ["events", i, "id"]) so the error formatter
+  // can report which event is the duplicate.
+  events: z
+    .array(traceEventSchema)
+    .superRefine((events, ctx) => {
+      const seen = new Map<string, number>();
+      events.forEach((event, index) => {
+        const firstIndex = seen.get(event.id);
+        if (firstIndex !== undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [index, "id"],
+            message: `Duplicate event id "${event.id}" (first used by event #${firstIndex}).`,
+          });
+        } else {
+          seen.set(event.id, index);
+        }
+      });
+    }),
 });
 
 // Types derived from the schema — never hand-written, always in sync.
