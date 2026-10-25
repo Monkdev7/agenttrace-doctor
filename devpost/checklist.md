@@ -39,7 +39,7 @@ Build mode: learn
   Learner check: Not applicable alone (internal); visible in slice 5 findings panel.
   Commit: `Add repeated-tool-call detector with tests`
 
-- [ ] **4. The explicit-error detector (Detector 2) finds reported failures, with tests**
+- [x] **4. The explicit-error detector (Detector 2) finds reported failures, with tests**
   Becomes usable: Detector 2 emits a confirmed-error finding for each `tool_result` with `status: "error"`, citing the result event plus its linked call when `call_id` resolves, and never crashing when it doesn't.
   Why now: Completes the mandatory detector pair — the second half of the kernel. Pure function with guard-case tests before UI.
   PRD ref: `prd.md > Finding cards`
