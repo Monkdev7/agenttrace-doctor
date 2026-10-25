@@ -96,14 +96,14 @@ Needs the learner's eyes in the browser (visual/interaction):
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — focused alternative for a plan-first learner: connected the slice-3 repeated-call rule decision to its test, and to the real moment the narrative-fix change was caught by a failing assertion.
+- [x] Optional edit and transfer reflection addressed — transfer question offered; learner's answer (if given) recorded in the private profile.
+- [x] `devpost/app-map.html` generated from finished code (commit 7677f93), paths/symbols checked against source, and shown, including a project-grounded practice to reuse.
 
-Activity and evidence: [to be recorded]
-Route and stops: [to be recorded]
-Edit outcome: [to be recorded]
-Reflection: [to be recorded]
-Activity mode: [to be recorded]
+Activity and evidence: Focused alternative (learner is experienced coding, newer to plan-first). Connected `prd.md > Resolved Decisions` (the 3+ consecutive repeated-call rule) → `src/lib/detectors/repeatedCalls.ts` (`MIN_RUN`, `detectRepeatedCalls`) → `tests/repeatedCalls.test.ts` (the 3-vs-2 boundary case). Concrete evidence of the practice: the narrative sample change broke a hardcoded assertion in `tests/workspace.test.ts` ([2,4,6]→[0,2,4]), which the test caught.
+Route and stops: Reference route in app-map.html — repeatedCalls.ts (rule) → repeatedCalls.test.ts (proof) → FindingCard.tsx (screen). Not a live guided walk.
+Edit outcome: No separate practice edit; the learner's own narrative-fix request this session served as the real change-and-verify moment, verified by the test suite.
+Reflection: Transfer question ("what would you do differently next time you start with an agent?") offered; personal answer, if provided, belongs only in the private learner profile.
+Activity mode: Focused alternative + reference app map (static), grounded in real build evidence.
 
 ## Revisions
